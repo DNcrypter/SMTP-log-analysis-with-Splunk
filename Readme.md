@@ -1,63 +1,62 @@
-## SMTP Log File Analysis Using Splunk SIEM
-In this project, we will upload sample SMTP log files to Splunk SIEM and perform various analyses to gain insights into email communication within the network.
+# Analyzing DHCP Log Files Using Splunk SIEM
+In this project, we will upload sample DHCP log files to Splunk SIEM and perform various analyses to gain insights into IP address assignment within the network.
 
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
         [![LinkedIn](https://img.shields.io/badge/LinkedIn-Profile-blue)](https://www.linkedin.com/in/nikhil--chaudhari/)
         [![Medium](https://img.shields.io/badge/Medium-Writeups-black)](https://medium.com/@nikhil-c)
 
+## 📝Introduction
+DHCP (Dynamic Host Configuration Protocol) log files contain valuable information about IP address assignments, lease durations, client requests, and server responses. Analyzing DHCP logs using Splunk SIEM enables network administrators to monitor IP address usage, detect anomalies, and troubleshoot network issues effectively.
 
-## 🍁Introduction
-SMTP (Simple Mail Transfer Protocol) log files contain valuable information about email communication, including sender and recipient addresses, timestamps, email subjects, and more. Analyzing SMTP logs using Splunk SIEM enables security professionals to monitor email traffic, detect anomalies, and identify potential security threats.
-
-## 🍁Prerequisites
+## 🔗Prerequisites
 Before starting the project, ensure the following:
 - Splunk instance is installed and configured.
-- SMTP log data sources are configured to forward logs to Splunk.
+- DHCP log data sources are configured to forward logs to Splunk.
 
-## 🍁Upload Sample SMTP Log Files to Splunk SIEM
+## 🍁Upload DHCP Log File to Splunk SIEM
 
-### 1. Prepare Sample SMTP Log Files
-- Obtain sample [SMTP log file]() in a suitable format (e.g., text files).
-- Ensure the log files contain relevant SMTP events, including timestamps, sender and recipient addresses, email subjects, etc.
+### 1. Prepare Sample DHCP Log Files
+- Obtain sample [DHCP log files](https://www.secrepo.com/maccdc2012/dhcp.log.gz) in a suitable format.
+- Ensure the log files contain relevant DHCP events, including timestamps, IP address assignments, lease durations, client identifiers, etc.
 - Save the sample log files in a directory accessible by the Splunk instance.
 
-### 2. Upload Log Files to Splunk
+### 2. Upload Log File to Splunk
 - Log in to the Splunk web interface.
 - Navigate to **Settings** > **Add Data**.
 - Select **Upload** as the data input method.
 
 ### 3. Choose File
-- Click on **Select File** and choose the sample SMTP log file you prepared earlier.
+- Click on **Select File** and choose the sample DHCP log file you prepared earlier.
 
 ### 4. Set Source Type
 - In the **Set Source Type** section, specify the source type for the uploaded log file.
-- Choose the appropriate source type for SMTP logs (e.g., `mail` or a custom source type if applicable).
+- Choose the appropriate source type for DHCP logs (e.g., `dhcpd` or a custom source type if applicable).
 
 ### 5. Review Settings
 - Review other settings such as index, host, and sourcetype.
-- Ensure the settings are configured correctly to match the sample SMTP log file.
+- Ensure the settings are configured correctly to match the sample DHCP log file.
 
 ### 6. Click Upload
 - Once all settings are configured, click on the **Review** button.
 - Review the settings one final time to ensure accuracy.
-- Click **Submit** to upload the sample SMTP log file to Splunk.
+- Click **Submit** to upload the sample DHCP log file to Splunk.
 
 ### 7. Verify Upload
 - After uploading, navigate to the search bar in the Splunk interface.
-- Run a search query to verify that the uploaded SMTP events are visible.
+- Run a search query to verify that the uploaded DHCP events are visible.
 
-## 🍁Analyse SMTP Log File in Splunk SIEM
+## 🍁Analyse DHCP Log Files in Splunk SIEM
 
 
-### 1. Search for SMTP Events
+### 1. 1. Search for DHCP Events
 - Open Splunk interface and navigate to the search bar.
-- Enter the following search query to retrieve SMTP events
+- Enter the following search query to retrieve DHCP events:
 ```
-index=<your_smtp_index> sourcetype=<your_smtp_sourcetype>
+index=<your_dhcp_index> sourcetype=<your_dhcp_sourcetype>
 ```
 
 ### 2. Extract Relevant Fields
-- Identify key fields in SMTP logs such as timestamps, sender and recipient addresses, email subjects, etc.
+- Identify key fields in DHCP logs such as timestamps, IP addresses, lease durations, client identifiers, etc.
 - Use Splunk's field extraction capabilities or regular expressions to extract these fields for better analysis.
 - Example extraction command
 ```
@@ -66,52 +65,51 @@ index=<your_smtp_index> sourcetype=<your_smtp_sourcetype>
 ```
 
 ### 3. Analyze Email Traffic Patterns
-- Determine the distribution of email senders:
+- Determine the distribution of IP address assignments:
 ```
-index=<your_smtp_index> sourcetype=<your_smtp_sourcetype>
-| top limit=10 sender_address
+index=<your_dhcp_index> sourcetype=<your_dhcp_sourcetype>
+| stats count by leased_ip
 ```
-- Identify top recipient addresses:
+- Identify top IP addresses leased by the DHCP server:
 ```
-index=<your_smtp_index> sourcetype=<your_smtp_sourcetype>
-| top limit=10 recipient_address
+index=<your_dhcp_index> sourcetype=<your_dhcp_sourcetype>
+| top limit=10 leased_ip
 ```
 
 ### 4. Detect Anomalies
-- Look for unusual patterns in email traffic:
+- Look for unusual patterns in IP address assignments:
 ```
-index=<your_smtp_index> sourcetype=<your_smtp_sourcetype>
+index=<your_dhcp_index> sourcetype=<your_dhcp_sourcetype>
 | timechart span=1h count by _time
 ```
 
-- Investigate emails with unusual attachment types or sizes:
+- Analyze DHCP requests from unauthorized or unknown clients:
 ```
-index=<your_smtp_index> sourcetype=<your_smtp_sourcetype>
-| search attachment_type="unusual_type" OR attachment_size > 1000000
-```
-
-### 5. Monitor User Behavior
-- Monitor user behavior related to email communication:
-```
-index=<your_smtp_index> sourcetype=<your_smtp_sourcetype>
-| stats count by user
-```
-- Identify users with multiple failed login attempts or unauthorized access attempts to email accounts:
-```
-index=<your_smtp_index> sourcetype=<your_smtp_sourcetype>
-| search action="login" status="failed"
-| stats count by user
-```
-- Analyze email activity patterns and deviations from normal behavior:
-```
-index=<your_smtp_index> sourcetype=<your_smtp_sourcetype>
-| timechart span=1d count by user
+index=<your_dhcp_index> sourcetype=<your_dhcp_sourcetype>
+| search NOT client_identifier="authorized_identifier"
 ```
 
+### 5. Monitor IP Address Usage
+- Monitor IP address usage over time:
+```
+index=<your_dhcp_index> sourcetype=<your_dhcp_sourcetype>
+| timechart span=1h count by leased_ip
+```
+- Identify IP addresses with multiple lease renewals or changes:
+```
+index=<your_dhcp_index> sourcetype=<your_dhcp_sourcetype>
+| stats count by leased_ip, lease_renewal
+| where count > 1 AND lease_renewal="true"
+```
+- Analyze DHCP traffic patterns and deviations from normal behavior:
+```
+index=<your_dhcp_index> sourcetype=<your_dhcp_sourcetype>
+| timechart span=1d count by leased_ip
+```
 
 
 ## 🚩Conclusion
-Analyzing SMTP log files with Splunk SIEM enhances network security by monitoring email traffic, detecting anomalies, and correlating data for threat detection. By leveraging Splunk's capabilities, organizations can proactively identify and respond to email-based threats, ensuring the integrity and confidentiality of their communications.
+Analyzing DHCP log files using Splunk SIEM provides valuable insights into IP address assignment within a network. By monitoring DHCP events, detecting anomalies, and correlating with other logs, organizations can enhance their network management capabilities, troubleshoot issues, and improve overall network security.
 
 @Happy Learning!
 
